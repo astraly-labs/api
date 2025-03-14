@@ -29,6 +29,73 @@ wheels = [
 ]
 
 [[package]]
+name = "api"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "opentelemetry-api" },
+    { name = "opentelemetry-exporter-otlp" },
+    { name = "opentelemetry-instrumentation-fastapi" },
+    { name = "opentelemetry-instrumentation-logging" },
+    { name = "opentelemetry-sdk" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "python-dotenv" },
+    { name = "requests" },
+    { name = "uvicorn" },
+]
+
+[package.dev-dependencies]
+extra = [
+    { name = "black" },
+    { name = "codespell" },
+    { name = "pre-commit" },
+    { name = "pyupgrade" },
+    { name = "ruff" },
+]
+lint = [
+    { name = "black" },
+    { name = "codespell" },
+    { name = "pre-commit" },
+    { name = "pyupgrade" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "fastapi", specifier = ">=0.115.11" },
+    { name = "httpx", specifier = ">=0.28.1" },
+    { name = "opentelemetry-api", specifier = ">=1.23.0" },
+    { name = "opentelemetry-exporter-otlp", specifier = ">=1.23.0" },
+    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.44b0" },
+    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.44b0" },
+    { name = "opentelemetry-sdk", specifier = ">=1.23.0" },
+    { name = "pydantic", specifier = ">=2.10.6" },
+    { name = "pydantic-settings", specifier = ">=2.8.1" },
+    { name = "python-dotenv", specifier = ">=1.0.1" },
+    { name = "requests", specifier = ">=2.31.0" },
+    { name = "uvicorn", specifier = ">=0.31.0" },
+]
+
+[package.metadata.requires-dev]
+extra = [
+    { name = "black" },
+    { name = "codespell" },
+    { name = "pre-commit" },
+    { name = "pyupgrade" },
+    { name = "ruff", specifier = ">=0.7.4" },
+]
+lint = [
+    { name = "black" },
+    { name = "codespell" },
+    { name = "pre-commit" },
+    { name = "pyupgrade" },
+    { name = "ruff", specifier = ">=0.7.4" },
+]
+
+[[package]]
 name = "asgiref"
 version = "3.8.1"
 source = { registry = "https://pypi.org/simple" }
@@ -547,73 +614,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/13/fc/128cc9cb8f03208bdbf93d3aa862e16d376844a14f9a0ce5cf4507372de4/platformdirs-4.3.6.tar.gz", hash = "sha256:357fb2acbc885b0419afd3ce3ed34564c13c9b95c89360cd9563f73aa5e2b907", size = 21302 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3c/a6/bc1012356d8ece4d66dd75c4b9fc6c1f6650ddd5991e421177d9f8f671be/platformdirs-4.3.6-py3-none-any.whl", hash = "sha256:73e575e1408ab8103900836b97580d5307456908a03e92031bab39e4554cc3fb", size = 18439 },
-]
-
-[[package]]
-name = "pragma-api"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "fastapi" },
-    { name = "httpx" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation-fastapi" },
-    { name = "opentelemetry-instrumentation-logging" },
-    { name = "opentelemetry-sdk" },
-    { name = "pydantic" },
-    { name = "pydantic-settings" },
-    { name = "python-dotenv" },
-    { name = "requests" },
-    { name = "uvicorn" },
-]
-
-[package.dev-dependencies]
-extra = [
-    { name = "black" },
-    { name = "codespell" },
-    { name = "pre-commit" },
-    { name = "pyupgrade" },
-    { name = "ruff" },
-]
-lint = [
-    { name = "black" },
-    { name = "codespell" },
-    { name = "pre-commit" },
-    { name = "pyupgrade" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "fastapi", specifier = ">=0.115.11" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "opentelemetry-api", specifier = ">=1.23.0" },
-    { name = "opentelemetry-exporter-otlp", specifier = ">=1.23.0" },
-    { name = "opentelemetry-instrumentation-fastapi", specifier = ">=0.44b0" },
-    { name = "opentelemetry-instrumentation-logging", specifier = ">=0.44b0" },
-    { name = "opentelemetry-sdk", specifier = ">=1.23.0" },
-    { name = "pydantic", specifier = ">=2.10.6" },
-    { name = "pydantic-settings", specifier = ">=2.8.1" },
-    { name = "python-dotenv", specifier = ">=1.0.1" },
-    { name = "requests", specifier = ">=2.31.0" },
-    { name = "uvicorn", specifier = ">=0.31.0" },
-]
-
-[package.metadata.requires-dev]
-extra = [
-    { name = "black" },
-    { name = "codespell" },
-    { name = "pre-commit" },
-    { name = "pyupgrade" },
-    { name = "ruff", specifier = ">=0.7.4" },
-]
-lint = [
-    { name = "black" },
-    { name = "codespell" },
-    { name = "pre-commit" },
-    { name = "pyupgrade" },
-    { name = "ruff", specifier = ">=0.7.4" },
 ]
 
 [[package]]
