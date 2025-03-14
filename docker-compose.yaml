@@ -8,11 +8,16 @@ services:
     environment:
       - PRAGMA_API_KEY=${PRAGMA_API_KEY}
       - PRAGMA_API_BASE_URL=${PRAGMA_API_BASE_URL}
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - PRAGMA_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - PRAGMA_OTEL_SERVICE_NAME=pragma-api
     volumes:
       - .:/opt/pragma-api
-    depends_on:
-      - otel-collector
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8007/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
   otel-collector:
     image: otel/opentelemetry-collector:latest
@@ -24,3 +29,8 @@ services:
       - "4318:4318"   # OTLP HTTP receiver
       - "8888:8888"   # Prometheus metrics
       - "8889:8889"   # Prometheus exporter
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:13133"]
+      interval: 5s
+      timeout: 5s
+      retries: 3

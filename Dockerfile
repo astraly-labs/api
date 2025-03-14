@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 ENV PATH="/root/.local/bin:${PATH}"
 
-FROM base as builder
+FROM base AS builder
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
@@ -27,7 +27,7 @@ WORKDIR /opt/pragma-api
 # Install dependencies using pip
 RUN pip install -e .
 
-FROM base as final
+FROM base AS final
 
 # Install runtime dependencies
 RUN apt-get update && \
