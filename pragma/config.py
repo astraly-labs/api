@@ -11,6 +11,10 @@ class Settings(BaseSettings):
     api_key: str = Field(..., description="Pragma API key")
     pragma_api_base_url: str = Field(..., description="Pragma API base URL")
 
+    # OpenTelemetry Configuration
+    otel_exporter_otlp_endpoint: str | None = Field(None, description="OpenTelemetry collector endpoint")
+    otel_service_name: str = Field("pragma-api", description="Service name for OpenTelemetry")
+
     # CORS Settings
     cors_origins: list[str] = ["*"]
     cors_methods: list[str] = ["*"]

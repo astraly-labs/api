@@ -8,13 +8,15 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
+from pragma.utils.logging import logger
 
-def setup_telemetry(app, service_name="pragma-api"):
+
+def setup_telemetry(app, service_name: str | None = None) -> TracerProvider:
     """Configure OpenTelemetry with OTLP exporter."""
     # Create a resource with service information
     resource = Resource.create(
         {
-            "service.name": service_name,
+            "service.name": service_name or os.getenv("PRAGMA_OTEL_SERVICE_NAME", "pragma-api"),
             "service.version": "1.0.0",
             "deployment.environment": os.getenv("ENVIRONMENT", "development"),
         }
@@ -23,13 +25,28 @@ def setup_telemetry(app, service_name="pragma-api"):
     # Initialize TracerProvider with the resource
     tracer_provider = TracerProvider(resource=resource)
 
-    # Set up exporters
-    # Console exporter for development
+    # Always add console exporter for development/debugging
     tracer_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
-    if otlp_endpoint := os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"):
-        otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
-        tracer_provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+    if otlp_endpoint := os.getenv("PRAGMA_OTEL_EXPORTER_OTLP_ENDPOINT"):
+        try:
+            otlp_exporter = OTLPSpanExporter(
+                endpoint=otlp_endpoint,
+                insecure=True,  # For development
+                timeout=5,  # 5 seconds timeout
+            )
+            tracer_provider.add_span_processor(
+                BatchSpanProcessor(
+                    otlp_exporter,
+                    max_queue_size=1000,
+                    max_export_batch_size=100,
+                    schedule_delay_millis=5000,  # 5 seconds
+                )
+            )
+            logger.info(f"OpenTelemetry OTLP exporter configured with endpoint: {otlp_endpoint}")
+        except Exception as e:
+            logger.warning(f"Failed to initialize OTLP exporter: {e}")
+            logger.info("Continuing with console exporter only")
 
     # Set the TracerProvider as the global default
     trace.set_tracer_provider(tracer_provider)
