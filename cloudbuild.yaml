@@ -1,0 +1,18 @@
+timeout: 3600s
+
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: docker-build-interactive-api
+    args: [ 'build',
+            '--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/pragma-interactive-api:latest',
+            '--file=Dockerfile.interactive-api',
+            '.' ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: docker-push-interactive-api
+    args: ['push', '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/pragma-interactive-api:latest']
+    waitFor: ['docker-build-interactive-api']
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
