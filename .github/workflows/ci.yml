@@ -29,8 +29,11 @@ jobs:
       - name: Install Dependencies
         run: uv sync --all-extras
 
-      - name: Format with pre-commit
-        run: bash scripts/format.sh
+      - uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files --verbose
+        env:
+          SKIP: no-commit-to-branch
 
   # https://github.com/marketplace/actions/alls-green#why
   # used for branch protection checks
