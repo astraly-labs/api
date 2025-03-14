@@ -23,10 +23,21 @@ RUN pipx install uv
 COPY . /opt/pragma-api
 
 WORKDIR /opt/pragma-api
-RUN uv sync --all-extras
+
+# Install dependencies using pip
+RUN pip install -e .
 
 FROM base as final
+
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /opt /opt
+COPY --from=builder /usr/local /usr/local
+
 WORKDIR /opt/pragma-api
 
 # Expose the port that your application will listen on
@@ -36,5 +47,5 @@ EXPOSE 8007
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://0.0.0.0:8007/health || exit 1
 
-# we need to run Uvicorn with the port 8007
-CMD ["uvicorn", "pragma.main:app", "--host", "0.0.0.0", "--port", "8007"]
+# Run using Python module to ensure proper PATH resolution
+CMD ["python", "-m", "uvicorn", "pragma.main:app", "--host", "0.0.0.0", "--port", "8007"]
