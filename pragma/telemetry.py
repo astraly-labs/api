@@ -1,5 +1,3 @@
-import os
-
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
@@ -8,7 +6,10 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
+from pragma.config import get_settings
 from pragma.utils.logging import logger
+
+settings = get_settings()
 
 
 def setup_telemetry(app, service_name: str | None = None) -> TracerProvider:
@@ -16,9 +17,9 @@ def setup_telemetry(app, service_name: str | None = None) -> TracerProvider:
     # Create a resource with service information
     resource = Resource.create(
         {
-            "service.name": service_name or os.getenv("PRAGMA_OTEL_SERVICE_NAME", "pragma-api"),
+            "service.name": service_name or settings.pragma_otel_service_name,
             "service.version": "1.0.0",
-            "deployment.environment": os.getenv("ENVIRONMENT", "development"),
+            "deployment.environment": settings.pragma_environment,
         }
     )
 
@@ -28,7 +29,7 @@ def setup_telemetry(app, service_name: str | None = None) -> TracerProvider:
     # Always add console exporter for development/debugging
     tracer_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
-    if otlp_endpoint := os.getenv("PRAGMA_OTEL_EXPORTER_OTLP_ENDPOINT"):
+    if otlp_endpoint := settings.pragma_otel_exporter_otlp_endpoint:
         try:
             otlp_exporter = OTLPSpanExporter(
                 endpoint=otlp_endpoint,

@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     # API Configuration
     api_key: str = Field(..., description="Pragma API key")
     pragma_api_base_url: str = Field(..., description="Pragma API base URL")
+    pragma_crawler_api_base_url: str = Field(..., description="Pragma Crawler API base URL")
+    pragma_otel_service_name: str = Field("pragma-api", description="Service name for OpenTelemetry")
+    pragma_otel_exporter_otlp_endpoint: str | None = Field(None, description="OpenTelemetry collector endpoint")
+    pragma_environment: str = Field("development", description="Environment")
 
     # OpenTelemetry Configuration
     otel_exporter_otlp_endpoint: str | None = Field(None, description="OpenTelemetry collector endpoint")
