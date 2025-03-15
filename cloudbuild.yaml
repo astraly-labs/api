@@ -5,7 +5,7 @@ steps:
     id: docker-build-interactive-api
     args: [ 'build',
             '--tag=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO_NAME}/pragma-interactive-api:latest',
-            '--file=Dockerfile.interactive-api',
+            '--file=Dockerfile',
             '.' ]
 
   - name: 'gcr.io/cloud-builders/docker'
