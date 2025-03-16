@@ -39,12 +39,12 @@ class Settings(BaseSettings):
         super().__init__(**kwargs)
         # Set data_sources after base_url is initialized
         self.data_sources = {
-            "mainnet": f"{self.pragma_api_base_url}/onchain",
-            "sepolia": f"{self.pragma_api_base_url}/onchain",
-            "checkpointsMainnet": f"{self.pragma_api_base_url}/onchain/checkpoints",
-            "checkpointsSepolia": f"{self.pragma_api_base_url}/onchain/checkpoints",
-            "publishersMainnet": f"{self.pragma_api_base_url}/onchain/publishers?network=mainnet&data_type=spot_entry",
-            "publishersSepolia": f"{self.pragma_api_base_url}/onchain/publishers?network=sepolia&data_type=spot_entry",
+            "mainnet": f"{self.api_base_url}/onchain",
+            "sepolia": f"{self.api_base_url}/onchain",
+            "checkpointsMainnet": f"{self.api_base_url}/onchain/checkpoints",
+            "checkpointsSepolia": f"{self.api_base_url}/onchain/checkpoints",
+            "publishersMainnet": f"{self.api_base_url}/onchain/publishers?network=mainnet&data_type=spot_entry",
+            "publishersSepolia": f"{self.api_base_url}/onchain/publishers?network=sepolia&data_type=spot_entry",
         }
 
     class Config:
