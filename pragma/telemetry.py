@@ -17,9 +17,9 @@ def setup_telemetry(app, service_name: str | None = None) -> TracerProvider:
     # Create a resource with service information
     resource = Resource.create(
         {
-            "service.name": service_name or settings.pragma_otel_service_name,
+            "service.name": service_name or settings.otel_service_name,
             "service.version": "1.0.0",
-            "deployment.environment": settings.pragma_environment,
+            "deployment.environment": settings.environment,
         }
     )
 
@@ -29,7 +29,7 @@ def setup_telemetry(app, service_name: str | None = None) -> TracerProvider:
     # Always add console exporter for development/debugging
     tracer_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
-    if otlp_endpoint := settings.pragma_otel_exporter_otlp_endpoint:
+    if otlp_endpoint := settings.otel_exporter_otlp_endpoint:
         try:
             otlp_exporter = OTLPSpanExporter(
                 endpoint=otlp_endpoint,
