@@ -8,18 +8,12 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # API Configuration
-    api_key: str = Field(..., description="Pragma API key", env="PRAGMA_API_KEY")
-    pragma_api_base_url: str = Field(..., description="Pragma API base URL", env="PRAGMA_API_BASE_URL")
-    pragma_crawler_api_base_url: str = Field(
-        ..., description="Pragma Crawler API base URL", env="PRAGMA_CRAWLER_API_BASE_URL"
-    )
-    pragma_otel_service_name: str = Field(
-        "pragma-api", description="Service name for OpenTelemetry", env="PRAGMA_OTEL_SERVICE_NAME"
-    )
-    pragma_otel_exporter_otlp_endpoint: str | None = Field(
-        None, description="OpenTelemetry collector endpoint", env="PRAGMA_OTEL_EXPORTER_OTLP_ENDPOINT"
-    )
-    pragma_environment: str = Field("development", description="Environment", env="PRAGMA_ENVIRONMENT")
+    api_key: str = Field(..., description="Pragma API key")
+    pragma_api_base_url: str = Field(..., description="Pragma API base URL")
+    pragma_crawler_api_base_url: str = Field(..., description="Pragma Crawler API base URL")
+    pragma_otel_service_name: str = Field("pragma-api", description="Service name for OpenTelemetry")
+    pragma_otel_exporter_otlp_endpoint: str | None = Field(None, description="OpenTelemetry collector endpoint")
+    pragma_environment: str = Field("development", description="Environment")
 
     # CORS Settings
     cors_origins: list[str] = ["*"]
@@ -56,6 +50,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        env_prefix = "PRAGMA_"
 
 
 @lru_cache
