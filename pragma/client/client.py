@@ -52,29 +52,32 @@ class PragmaApiClient:
                     try:
                         return response.json()
                     except ValueError as e:
+                        logger.error(f"Failed to parse JSON response: {response.text}")
                         raise HTTPException(
                             status_code=500,
-                            detail="Invalid JSON response from API",
+                            detail=f"Invalid JSON response from API: {response.text[:200]}",
                         ) from e
 
                 # Handle specific error cases
-                if error_data and "message" in error_data and "No checkpoints found" in error_data["message"]:
-                    # Return empty array for "No checkpoints found" error
-                    return []
+                if error_data and "message" in error_data:
+                    if "No checkpoints found" in error_data["message"]:
+                        return []
+                    # Return the actual error message from the API
+                    raise HTTPException(status_code=response.status_code, detail=error_data["message"])
 
                 # Handle other errors
                 detail = (
                     f"External API error: {error_data.get('error', 'Unknown error')}"
                     if error_data
-                    else "Failed to fetch data from external API"
+                    else f"Failed to fetch data from external API: {response.text[:200]}"
                 )
                 raise HTTPException(status_code=response.status_code, detail=detail)
 
         except httpx.RequestError as exc:
-            logger.error(f"Request error: {exc}")
+            logger.error(f"Request error for {url}: {exc}")
             raise HTTPException(
                 status_code=500,
-                detail=f"Error connecting to external API: {str(exc)}",
+                detail=f"Error connecting to external API ({url}): {str(exc)}",
             ) from exc
         except Exception as exc:
             logger.error(f"Unexpected error: {exc}", exc_info=True)

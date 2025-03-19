@@ -110,21 +110,29 @@ async def get_onchain_data(
     tags=["onchain"],
 )
 async def get_publishers(
-    network: str = Query("sepolia", description="Network name", regex="^(sepolia|mainnet)$"),
+    network: str = Query("sepolia", description="Network name"),
     data_type: str = Query(
         "spot_entry",
         description="Data type",
-        regex="^(spot_entry|perp_entry|future_entry)$",
     ),
     client: PragmaApiClient = Depends(get_api_client),
 ):
-    """Retrieve publishers for a specific network and data type.
+    """Retrieve publishers for a specific network and data type."""
+    publishers = await client.get_publishers(network, data_type)
 
-    Args:
-        network: The network to fetch data from (sepolia or mainnet)
-        data_type: The data type to filter by (spot_entry, perp_entry, or future_entry)
-        client: The API client dependency
-    Returns:
-        List of publishers
-    """
-    return await client.get_publishers(network, data_type)
+    formatted_publishers = []
+    for publisher in publishers:
+        formatted_publisher = {
+            "image": f"/assets/publishers/{publisher['publisher'].lower()}.svg",
+            "type": publisher.get("type", ""),
+            "link": publisher.get("website_url", ""),
+            "name": publisher["publisher"],
+            "lastUpdated": publisher.get("last_updated_timestamp", 0),  # Just the raw timestamp
+            "reputationScore": "soon",
+            "nbFeeds": publisher.get("nb_feeds", 0),
+            "dailyUpdates": publisher.get("daily_updates", 0),
+            "totalUpdates": publisher.get("total_updates", 0),
+        }
+        formatted_publishers.append(formatted_publisher)
+
+    return formatted_publishers
