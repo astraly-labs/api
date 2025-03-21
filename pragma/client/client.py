@@ -115,6 +115,13 @@ class PragmaApiClient:
             logger.error(f"Error fetching onchain data for {pair}: {str(e)}")
             raise
 
+    async def get_onchain_data_aggregated(
+        self, pair: str, network: str = "mainnet", aggregation: str = "median"
+    ) -> list[dict[str, Any]]:
+        """Get on-chain data for a specific pair and network."""
+        params = {"network": network, "aggregation": aggregation}
+        return await self._make_request(f"onchain/{pair}", params)
+
     async def get_candlestick_data(self, pair: str, interval: str = "15min") -> list[dict[str, Any]]:
         """Get candlestick data for a specific pair."""
         params = {"interval": interval}
