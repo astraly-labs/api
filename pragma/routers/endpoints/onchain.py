@@ -14,7 +14,7 @@ app = APIRouter(
 
 
 @app.get(
-    "/checkpoints/{base}/{quote}",
+    "/checkpoints",
     responses={
         200: {"description": "Successfully retrieved checkpoint data"},
         403: {"model": ErrorResponse, "description": "API key missing or invalid"},
@@ -23,24 +23,31 @@ app = APIRouter(
     tags=["onchain"],
 )
 async def get_checkpoints(
-    base: str,
-    quote: str,
+    pair: str = Query(..., description="Trading pair in format base/quote (e.g., btc/usd)"),
     network: str = Query("mainnet", description="Network name"),
     client: PragmaApiClient = Depends(get_api_client),
 ):
     """Retrieve checkpoint data for a specific pair and network.
 
     Args:
-        base: The base asset
-        quote: The quote asset
+        pair: The trading pair in format base/quote
         network: The network to fetch data from
-        aggregation: The aggregation method to use
         client: The API client dependency
     Returns:
-        List of checkpoint data
+        List of formatted checkpoint data
     """
-    pair = f"{base}/{quote}"
-    return await client.get_checkpoints(pair, network)
+    checkpoints = await client.get_checkpoints(pair, network)
+
+    return [
+        {
+            "hash": checkpoint["tx_hash"],
+            "price": float(checkpoint["price"]),
+            "date": checkpoint["timestamp"],
+            "hour": checkpoint["timestamp"],
+            "signer": checkpoint["sender_address"],
+        }
+        for checkpoint in checkpoints
+    ]
 
 
 @app.get(
