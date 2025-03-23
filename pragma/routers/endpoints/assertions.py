@@ -34,7 +34,7 @@ async def get_assertion_details(assertion_id: str, client: PragmaApiClient = Dep
 
 
 @app.get(
-    "assertions",
+    "/assertions",
     responses={
         200: {"description": "Successfully retrieved assertions"},
         403: {"model": ErrorResponse, "description": "API key missing or invalid"},
