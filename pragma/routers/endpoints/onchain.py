@@ -12,90 +12,6 @@ app = APIRouter(
     tags=["onchain"],
 )
 
-
-@app.get(
-    "/{pair:path}",
-    responses={
-        200: {"description": "Successfully retrieved aggregated on-chain data"},
-    },
-    tags=["onchain"],
-)
-async def get_aggregated_onchain_data(
-    pair: str = Path(..., description="Trading pair (e.g., btc/usd)"),
-    network: str = Query("mainnet", description="Network name"),
-    aggregation: str = Query("median", description="Aggregation method"),
-    client: PragmaApiClient = Depends(get_api_client),
-):
-    """Retrieve aggregated on-chain data for a specific pair and network."""
-    try:
-        pair = pair.upper()
-        data = await client.get_onchain_data_aggregated(pair, network, aggregation)
-
-        base = pair.split("/")[0].lower()
-
-        if not data or "error" in data:
-            return {
-                "image": f"/assets/currencies/{base}.svg",
-                "type": "Crypto",
-                "ticker": pair,
-                "lastUpdated": "Error fetching data",
-                "price": 0,
-                "sources": 0,
-                "variations": {
-                    "past1h": 0,
-                    "past24h": 0,
-                    "past7d": 0,
-                },
-                "chart": "",
-                "ema": "N/A",
-                "macd": "N/A",
-                "error": data.get("error") if data else "Failed to fetch data",
-                "isUnsupported": False,
-            }
-
-        # Format successful response in the same structure
-        return {
-            "image": f"/assets/currencies/{base}.svg",
-            "type": "Crypto",
-            "ticker": pair,
-            "lastUpdated": data.get("last_updated_timestamp", 0),
-            "price": float(int(data.get("price", "0x0"), 16))
-            / (10 ** data.get("decimals", 8)),  # Convert hex price to decimal
-            "sources": data.get("nb_sources_aggregated", 0),
-            "variations": {
-                "past1h": data.get("variations", {}).get("1h", 0),
-                "past24h": data.get("variations", {}).get("1d", 0),
-                "past7d": data.get("variations", {}).get("1w", 0),
-            },
-            "chart": "",
-            "ema": "N/A",
-            "macd": "N/A",
-            "error": None,
-            "isUnsupported": False,
-        }
-
-    except Exception as e:
-        base = pair.split("/")[0].lower()
-        return {
-            "image": f"/assets/currencies/{base}.svg",
-            "type": "Crypto",
-            "ticker": pair,
-            "lastUpdated": "Error fetching data",
-            "price": 0,
-            "sources": 0,
-            "variations": {
-                "past1h": 0,
-                "past24h": 0,
-                "past7d": 0,
-            },
-            "chart": "",
-            "ema": "N/A",
-            "macd": "N/A",
-            "error": str(e),
-            "isUnsupported": False,
-        }
-
-
 @app.get(
     "/checkpoints",
     responses={
@@ -226,3 +142,86 @@ async def get_publishers(
         formatted_publishers.append(formatted_publisher)
 
     return formatted_publishers
+
+@app.get(
+    "/{pair:path}",
+    responses={
+        200: {"description": "Successfully retrieved aggregated on-chain data"},
+    },
+    tags=["onchain"],
+)
+async def get_aggregated_onchain_data(
+    pair: str = Path(..., description="Trading pair (e.g., btc/usd)"),
+    network: str = Query("mainnet", description="Network name"),
+    aggregation: str = Query("median", description="Aggregation method"),
+    client: PragmaApiClient = Depends(get_api_client),
+):
+    """Retrieve aggregated on-chain data for a specific pair and network."""
+    try:
+        pair = pair.upper()
+        data = await client.get_onchain_data_aggregated(pair, network, aggregation)
+
+        base = pair.split("/")[0].lower()
+
+        if not data or "error" in data:
+            return {
+                "image": f"/assets/currencies/{base}.svg",
+                "type": "Crypto",
+                "ticker": pair,
+                "lastUpdated": "Error fetching data",
+                "price": 0,
+                "sources": 0,
+                "variations": {
+                    "past1h": 0,
+                    "past24h": 0,
+                    "past7d": 0,
+                },
+                "chart": "",
+                "ema": "N/A",
+                "macd": "N/A",
+                "error": data.get("error") if data else "Failed to fetch data",
+                "isUnsupported": False,
+            }
+
+        # Format successful response in the same structure
+        return {
+            "image": f"/assets/currencies/{base}.svg",
+            "type": "Crypto",
+            "ticker": pair,
+            "lastUpdated": data.get("last_updated_timestamp", 0),
+            "price": float(int(data.get("price", "0x0"), 16))
+            / (10 ** data.get("decimals", 8)),  # Convert hex price to decimal
+            "sources": data.get("nb_sources_aggregated", 0),
+            "variations": {
+                "past1h": data.get("variations", {}).get("1h", 0),
+                "past24h": data.get("variations", {}).get("1d", 0),
+                "past7d": data.get("variations", {}).get("1w", 0),
+            },
+            "chart": "",
+            "ema": "N/A",
+            "macd": "N/A",
+            "error": None,
+            "isUnsupported": False,
+        }
+
+    except Exception as e:
+        base = pair.split("/")[0].lower()
+        return {
+            "image": f"/assets/currencies/{base}.svg",
+            "type": "Crypto",
+            "ticker": pair,
+            "lastUpdated": "Error fetching data",
+            "price": 0,
+            "sources": 0,
+            "variations": {
+                "past1h": 0,
+                "past24h": 0,
+                "past7d": 0,
+            },
+            "chart": "",
+            "ema": "N/A",
+            "macd": "N/A",
+            "error": str(e),
+            "isUnsupported": False,
+        }
+
