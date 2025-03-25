@@ -5,12 +5,13 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
 from pragma.client.client import PragmaApiClient
 from pragma.client.token import get_api_client
-from pragma.models.schemas import ErrorResponse
+from pragma.models.schemas import AggregatedOnchainResponse, ErrorResponse
 
 app = APIRouter(
     prefix="/onchain",
     tags=["onchain"],
 )
+
 
 @app.get(
     "/checkpoints",
@@ -143,8 +144,10 @@ async def get_publishers(
 
     return formatted_publishers
 
+
 @app.get(
     "/{pair:path}",
+    response_model=AggregatedOnchainResponse,
     responses={
         200: {"description": "Successfully retrieved aggregated on-chain data"},
     },
@@ -224,4 +227,3 @@ async def get_aggregated_onchain_data(
             "error": str(e),
             "isUnsupported": False,
         }
-
