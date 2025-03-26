@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -17,6 +19,8 @@ class AggregatedOnchainResponse(BaseModel):
     image: str = Field(..., description="URL to the currency image")
     type: str = Field(default="Crypto", description="Asset type")
     ticker: str = Field(..., description="Trading pair ticker")
+    decimals: int = Field(default=0, description="Number of decimals")
+    components: list[dict[str, Any]] = Field(default=[], description="Components of the aggregated onchain data")
     lastUpdated: str | int = Field(..., description="Last update timestamp or error message")
     price: float = Field(default=0, description="Current price of the asset")
     sources: int = Field(default=0, description="Number of sources aggregated")

@@ -150,6 +150,8 @@ async def get_publishers(
     response_model=AggregatedOnchainResponse,
     responses={
         200: {"description": "Successfully retrieved aggregated on-chain data"},
+        403: {"model": ErrorResponse, "description": "API key missing or invalid"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
     },
     tags=["onchain"],
 )
@@ -170,10 +172,12 @@ async def get_aggregated_onchain_data(
             return {
                 "image": f"/assets/currencies/{base}.svg",
                 "type": "Crypto",
+                "decimals": data.get("decimals"),
                 "ticker": pair,
                 "lastUpdated": "Error fetching data",
                 "price": 0,
                 "sources": 0,
+                "components": data.get("components", []),
                 "variations": {
                     "past1h": 0,
                     "past24h": 0,
@@ -190,11 +194,13 @@ async def get_aggregated_onchain_data(
         return {
             "image": f"/assets/currencies/{base}.svg",
             "type": "Crypto",
+            "decimals": data.get("decimals"),
             "ticker": pair,
             "lastUpdated": data.get("last_updated_timestamp", 0),
             "price": float(int(data.get("price", "0x0"), 16))
             / (10 ** data.get("decimals", 8)),  # Convert hex price to decimal
             "sources": data.get("nb_sources_aggregated", 0),
+            "components": data.get("components", []),
             "variations": {
                 "past1h": data.get("variations", {}).get("1h", 0),
                 "past24h": data.get("variations", {}).get("1d", 0),

@@ -119,8 +119,10 @@ class PragmaApiClient:
         self, pair: str, network: str = "mainnet", aggregation: str = "median"
     ) -> list[dict[str, Any]]:
         """Get on-chain data for a specific pair and network."""
+        # Separate the base and quote from the pair
+        base, quote = pair.split("/")
         params = {"network": network, "aggregation": aggregation}
-        return await self._make_request(f"onchain/{pair}", params)
+        return await self._make_request(f"onchain/{base}/{quote}", params)
 
     async def get_candlestick_data(self, pair: str, interval: str = "15min") -> list[dict[str, Any]]:
         """Get candlestick data for a specific pair."""
