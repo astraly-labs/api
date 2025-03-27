@@ -32,7 +32,7 @@ DEFAULT_PAIRS = ["ETH/USD", "BTC/USD"]
 DEFAULT_ENTRY_PARAMS = {
     "aggregation": "median",
     "entry_type": None,  # Changeable from the frontend
-    "interval": "1s",  # Changeable from the frontend
+    "interval": None,  # Changeable from the frontend
     "routing": True,
     "timestamp": None,
 }
@@ -54,15 +54,17 @@ async def stream_multi_data(
         description='List of trading pairs to stream prices for (e.g. ["ETH/USD", "BTC/USD"])',
         example=["ETH/USD", "BTC/USD"],
     ),
+    interval: str | None = Query(None, description="Interval for updates (e.g. '2s', '1m')", example="2s"),
+    aggregation: str | None = Query("median", description="Aggregation method"),
+    historical_prices: int | None = Query(
+        None,
+        description="Number of historical price entries to fetch on initial connection",
+        ge=0,
+        example=100,
+    ),
     get_entry_params: str | None = Query(
         None,
         description="Base parameters for entry requests including interval, aggregation mode, and routing options",
-    ),
-    historical_prices: int | None = Query(
-        None,
-        description="Number of historical price entries to fetch on initial connection (default: 100)",
-        ge=0,
-        example=100,
     ),
     client: PragmaApiClient = Depends(get_api_client),
 ):
@@ -70,8 +72,10 @@ async def stream_multi_data(
 
     Args:
         pairs: List of trading pairs to stream (required)
-        get_entry_params: Base parameters for entry requests as JSON string (optional)
+        interval: Interval for updates (e.g. '2s', '1m')
+        aggregation: Aggregation method
         historical_prices: Number of historical prices to include (optional, default: 100)
+        get_entry_params: Base parameters for entry requests as JSON string (optional)
         client: The API client dependency
     """
 
@@ -79,7 +83,12 @@ async def stream_multi_data(
         try:
             # Use default params if none provided
             if not get_entry_params:
+                # Construct entry_params from direct query parameters
                 entry_params = DEFAULT_ENTRY_PARAMS.copy()
+                if interval is not None:
+                    entry_params["interval"] = interval
+                if aggregation is not None:
+                    entry_params["aggregation"] = aggregation
             else:
                 # Parse JSON parameters
                 try:
@@ -114,7 +123,11 @@ async def stream_multi_data(
                 return
 
             # Construct query parameters with only essential parameters
-            params = {"interval": "1s", "aggregation": "median", "historical_prices": str(historical_prices or 10)}
+            params = {
+                "interval": validated_params["interval"],
+                "aggregation": validated_params["aggregation"],
+                "historical_prices": str(historical_prices or 10),
+            }
             for pair in pairs:
                 params.setdefault("pairs[]", []).append(pair)
 
