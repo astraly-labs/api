@@ -218,27 +218,24 @@ class PragmaApiClient:
     async def stream_multi_data(
         self,
         pairs: list[str],
-        interval: str = "1s",
-        aggregation: str = "median",
-        historical_prices: str = "10",
+        get_entry_params: dict[str, Any],
+        historical_prices: int = 100,
     ) -> AsyncGenerator[dict[str, Any], None]:
         """Stream price data for multiple pairs.
 
         Args:
             pairs: List of asset pairs to stream
-            interval: Time interval for updates
-            aggregation: Aggregation method
+            get_entry_params: Base parameters for entry requests including interval, aggregation mode, and routing options
             historical_prices: Number of historical prices to include
 
         Yields:
             Price data events
         """
-        params = {
-            "interval": interval,
-            "aggregation": aggregation,
-            "historical_prices": historical_prices,
-        }
+        # Start with the entry params
+        params = get_entry_params.copy()
+        # Add historical prices and pairs
+        params["historical_prices"] = str(historical_prices)
         for pair in pairs:
             params.setdefault("pairs[]", []).append(pair)
 
-        return await self._make_request("multi/stream", params)
+        return await self._make_request("data/multi/stream", params)
