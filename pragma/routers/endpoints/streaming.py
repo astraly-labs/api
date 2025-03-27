@@ -1,4 +1,3 @@
-import asyncio
 import json
 from urllib.parse import unquote, urlencode
 
@@ -59,8 +58,7 @@ async def stream_multi_data(
     historical_prices: int | None = Query(
         None,
         description="Number of historical price entries to fetch on initial connection",
-        ge=0,
-        example=100,
+        example=10,
     ),
     get_entry_params: str | None = Query(
         None,
@@ -92,27 +90,17 @@ async def stream_multi_data(
             else:
                 # Parse JSON parameters
                 try:
-                    # First URL decode the entire string
                     decoded_params = unquote(get_entry_params)
-                    # Then parse as JSON
                     entry_params = json.loads(decoded_params)
-                    # Merge with defaults to ensure all required fields are present
                     entry_params = {**DEFAULT_ENTRY_PARAMS, **entry_params}
                     logger.info(f"Successfully parsed entry params: {entry_params}")
                 except json.JSONDecodeError as e:
                     logger.error(f"Invalid get_entry_params JSON: {e}")
-                    logger.error(f"Raw get_entry_params: {get_entry_params}")
-                    logger.error(f"Decoded params: {decoded_params}")
                     error_msg = f"data: {{'error': 'Invalid get_entry_params JSON', 'details': '{str(e)}'}}\n\n"
                     yield error_msg.encode("utf-8")
                     return
-                except Exception as e:
-                    logger.error(f"Error processing get_entry_params: {e}")
-                    error_msg = f"data: {{'error': 'Error processing parameters', 'details': '{str(e)}'}}\n\n"
-                    yield error_msg.encode("utf-8")
-                    return
 
-            # Validate entry params using Pydantic model
+            # Validate entry params
             try:
                 validated_params = GetEntryParams(**entry_params).model_dump(exclude_none=True)
                 logger.info(f"Validated entry params: {validated_params}")
@@ -122,12 +110,18 @@ async def stream_multi_data(
                 yield error_msg.encode("utf-8")
                 return
 
-            # Construct query parameters with only essential parameters
+            # Construct query parameters for internal API
             params = {
                 "interval": validated_params["interval"],
                 "aggregation": validated_params["aggregation"],
-                "historical_prices": str(historical_prices or 10),
             }
+            # Only add historical_prices if it's provided
+            if historical_prices is not None:
+                params["historical_prices"] = str(historical_prices)
+            else:
+                params["historical_prices"] = 0
+            # Transform pairs to the format expected by internal API
+            # Each pair should be a separate pairs[] parameter
             for pair in pairs:
                 params.setdefault("pairs[]", []).append(pair)
 
@@ -145,64 +139,9 @@ async def stream_multi_data(
                         yield error_msg.encode("utf-8")
                         return
 
-                    # Send initial connection message
-                    yield f"data: {{'connected': true, 'timestamp': {int(asyncio.get_event_loop().time() * 1000)}}}\n\n".encode()
-
-                    # Process the event stream
-                    buffer = ""
+                    # Forward the stream directly from the internal API
                     async for chunk in response.aiter_bytes():
-                        try:
-                            chunk_text = chunk.decode("utf-8")
-                            buffer += chunk_text
-
-                            # Split on double newlines to separate events
-                            while "\n\n" in buffer:
-                                event, buffer = buffer.split("\n\n", 1)
-
-                                if event.startswith("data: "):
-                                    try:
-                                        # Strip 'data: ' prefix if present
-                                        event_data = event.strip()
-                                        if event_data.startswith("data: "):
-                                            event_data = event_data[6:]  # Remove 'data: ' prefix
-                                        parsed_data = json.loads(event_data)
-
-                                        # Transform the data to match frontend expectations
-                                        if isinstance(parsed_data, list):
-                                            # Handle array of price updates
-                                            transformed_data = []
-                                            for update in parsed_data:
-                                                if isinstance(update, dict) and "pair_id" in update:
-                                                    transformed_update = {
-                                                        "pair_id": update["pair_id"],
-                                                        "price": update.get("price", "0x0"),
-                                                        "timestamp": update.get(
-                                                            "timestamp", int(asyncio.get_event_loop().time() * 1000)
-                                                        ),
-                                                        "decimals": update.get("decimals", 8),
-                                                        "num_sources_aggregated": update.get(
-                                                            "num_sources_aggregated", 1
-                                                        ),
-                                                        "variations": {"1h": 0, "1d": 0, "1w": 0},
-                                                    }
-                                                    transformed_data.append(transformed_update)
-
-                                            if transformed_data:
-                                                yield f"data: {json.dumps(transformed_data)}\n\n".encode()
-                                        else:
-                                            # Pass through non-array data (like connection messages)
-                                            yield f"data: {json.dumps(parsed_data)}\n\n".encode()
-
-                                    except json.JSONDecodeError as e:
-                                        logger.error(f"Error parsing JSON from event: {e}")
-                                        logger.error(f"JSON content: {event[:100]}...")  # For debugging
-                                        continue
-                                else:
-                                    # Pass through non-data events (like comments)
-                                    yield f"{event}\n\n".encode()
-                        except Exception as e:
-                            logger.error(f"Error processing chunk: {e}")
-                            continue
+                        yield chunk
 
         except Exception as e:
             logger.error(f"Error in stream: {str(e)}")
