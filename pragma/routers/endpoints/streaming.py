@@ -12,8 +12,7 @@ from pragma.client.token import get_api_client
 from pragma.utils.logging import logger
 
 app = APIRouter(
-    prefix="/multi",
-    tags=["streaming"],
+    prefix="/data/multi",
 )
 
 
