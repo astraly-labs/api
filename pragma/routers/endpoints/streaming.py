@@ -4,37 +4,16 @@ from urllib.parse import unquote, urlencode
 import httpx
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
 
 from pragma.client.client import PragmaApiClient
 from pragma.client.token import get_api_client
+from pragma.models.schemas import GetEntryParams
+from pragma.models.utils import DEFAULT_ENTRY_PARAMS
 from pragma.utils.logging import logger
 
 app = APIRouter(
     prefix="/data/multi",
 )
-
-
-class GetEntryParams(BaseModel):
-    """Parameters for entry requests."""
-
-    aggregation: str | None = None
-    entry_type: str | None = None
-    interval: str | None = None
-    routing: bool = True
-    timestamp: int | None = None
-
-
-DEFAULT_PAIRS = ["ETH/USD", "BTC/USD"]
-
-# Default entry parameters matching API.devnet
-DEFAULT_ENTRY_PARAMS = {
-    "aggregation": "median",
-    "entry_type": None,  # Changeable from the frontend
-    "interval": None,  # Changeable from the frontend
-    "routing": True,
-    "timestamp": None,
-}
 
 
 @app.get(

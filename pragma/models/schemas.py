@@ -32,3 +32,13 @@ class AggregatedOnchainResponse(BaseModel):
     macd: str = Field(default="N/A", description="Moving Average Convergence Divergence")
     error: str | None = Field(default=None, description="Error message if any")
     isUnsupported: bool = Field(default=False, description="Flag indicating if the pair is unsupported")
+
+
+class GetEntryParams(BaseModel):
+    """Parameters for entry requests."""
+
+    aggregation: str | None = None
+    entry_type: str | None = None
+    interval: str | None = None
+    routing: bool = True
+    timestamp: int | None = None
