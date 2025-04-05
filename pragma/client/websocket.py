@@ -22,7 +22,7 @@ class PragmaLightspeedClient:
         Args:
             url: The WebSocket URL to connect to
         """
-        self.url = settings.pragma_websocket_url
+        self.url = settings.websocket_url
         self.ws: websocket.WebSocketApp | None = None
         self.subscribed_pairs: set[str] = set()
         self._running = False
