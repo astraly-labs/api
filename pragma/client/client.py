@@ -1,5 +1,4 @@
 import logging
-from collections.abc import AsyncGenerator
 from typing import Any
 
 import httpx
@@ -215,27 +214,42 @@ class PragmaApiClient:
         params = {k: v for k, v in params.items() if v is not None}
         return await self._make_request(f"aggregation/candlestick/{base}/{quote}", params)
 
-    async def stream_multi_data(
+    async def get_offchain_data(
         self,
-        pairs: list[str],
-        get_entry_params: dict[str, Any],
-        historical_prices: int = 100,
-    ) -> AsyncGenerator[dict[str, Any], None]:
-        """Stream price data for multiple pairs.
+        base: str,
+        quote: str,
+        timestamp: int | None = None,
+        interval: str | None = None,
+        aggregation: str | None = None,
+        routing: bool | None = None,
+        entry_type: str | None = None,
+        expiry: str | None = None,
+        with_components: bool | None = None,
+    ) -> dict[str, Any]:
+        """Get offchain data for a trading pair.
 
         Args:
-            pairs: List of asset pairs to stream
-            get_entry_params: Base parameters for entry requests including interval, aggregation mode, and routing options
-            historical_prices: Number of historical prices to include
+            pair: Trading pair in format "BASE/QUOTE" (e.g. "BTC/USD")
+            timestamp: Unix timestamp in seconds for historical price data
+            interval: Time interval for aggregated price data (e.g. "1min", "1h", "1d")
+            aggregation: Price aggregation method ("median", "twap")
+            routing: Enable price routing through intermediate pairs
+            entry_type: Type of market entry ("spot", "perp", "future")
+            expiry: Expiry date for future contracts in ISO 8601 format
+            with_components: Include source components in the response
 
-        Yields:
-            Price data events
+        Returns:
+            Dictionary containing the price data and related information
         """
-        # Start with the entry params
-        params = get_entry_params.copy()
-        # Add historical prices and pairs
-        params["historical_prices"] = str(historical_prices)
-        for pair in pairs:
-            params.setdefault("pairs[]", []).append(pair)
-
-        return await self._make_request("data/multi/stream", params)
+        params = {
+            "timestamp": timestamp,
+            "interval": interval,
+            "routing": routing,
+            "aggregation": aggregation,
+            "entry_type": entry_type,
+            "expiry": expiry,
+            "with_components": with_components,
+        }
+        # Remove None values
+        params = {k: v for k, v in params.items() if v is not None}
+        return await self._make_request(f"data/{base}/{quote}", params)

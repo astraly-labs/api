@@ -175,3 +175,6 @@ pyrightconfig.json
 
 # Fucking Mac
 .DS_Store
+
+# Testing
+node_modules/

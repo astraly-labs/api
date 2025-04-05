@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     api_key: str = Field(..., description="Pragma API key")
     api_base_url: str = Field(..., description="Pragma API base URL")
     crawler_api_base_url: str = Field(..., description="Pragma Crawler API base URL")
+    websocket_url: str = Field(..., description="Pragma WebSocket URL")
     otel_service_name: str = Field("pragma-api", description="Service name for OpenTelemetry")
     otel_exporter_otlp_endpoint: str | None = Field(None, description="OpenTelemetry collector endpoint")
     environment: str = Field("development", description="Environment")
