@@ -1,0 +1,10 @@
+{
+  "name": "pragma-ws-client",
+  "version": "1.0.0",
+  "description": "Pragma WebSocket client",
+  "main": "ws_client.js",
+  "dependencies": {
+    "ws": "^8.16.0",
+    "dotenv": "^16.4.5"
+  }
+}
