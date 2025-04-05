@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
@@ -11,7 +10,6 @@ from pragma.config import get_settings
 from pragma.routers.api import api_router as v1
 from pragma.telemetry import setup_telemetry
 from pragma.utils.logging import logger
-from pragma.utils.ws import lightspeed_client
 
 # Configure logging
 logging.basicConfig(
@@ -27,7 +25,6 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""
     logger.info("Starting Pragma API FastAPI application")
-    asyncio.create_task(asyncio.to_thread(lightspeed_client.run))
     yield
     logger.info("Shutting down Pragma API FastAPI application")
 
