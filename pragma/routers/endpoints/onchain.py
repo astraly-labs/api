@@ -139,10 +139,33 @@ async def get_publishers(
             "nbFeeds": publisher.get("nb_feeds", 0),
             "dailyUpdates": publisher.get("daily_updates", 0),
             "totalUpdates": publisher.get("total_updates", 0),
+            "components": publisher.get("components", []),
         }
         formatted_publishers.append(formatted_publisher)
 
     return formatted_publishers
+
+
+@app.get(
+    "/publisher/{name}",
+    responses={
+        200: {"description": "Successfully retrieved publisher data"},
+        403: {"model": ErrorResponse, "description": "API key missing or invalid"},
+        500: {"model": ErrorResponse, "description": "Internal server error"},
+    },
+)
+async def get_publisher(
+    name: str,
+    network: str = Query("sepolia", description="Network name"),
+    data_type: str = Query("spot_entry", description="Data type"),
+    client: PragmaApiClient = Depends(get_api_client),
+):
+    # we will get the publisher from the get_publishers endpoint
+    publishers = await client.get_publishers(network, data_type)
+    return next(
+        (publisher for publisher in publishers if publisher["publisher"] == name),
+        None,
+    )
 
 
 @app.get(
