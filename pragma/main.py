@@ -8,7 +8,6 @@ from fastapi.responses import JSONResponse, RedirectResponse
 
 from pragma.config import get_settings
 from pragma.routers.api import api_router as v1
-from pragma.telemetry import setup_telemetry
 from pragma.utils.logging import logger
 
 # Configure logging
@@ -37,8 +36,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Setup telemetry first
-setup_telemetry(app)
+# # Setup telemetry first
+# setup_telemetry(app)
 
 # Configure CORS
 app.add_middleware(

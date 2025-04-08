@@ -229,7 +229,8 @@ class PragmaApiClient:
         """Get offchain data for a trading pair.
 
         Args:
-            pair: Trading pair in format "BASE/QUOTE" (e.g. "BTC/USD")
+            base: Base asset symbol (e.g. BTC)
+            quote: Quote asset symbol (e.g. USD)
             timestamp: Unix timestamp in seconds for historical price data
             interval: Time interval for aggregated price data (e.g. "1min", "1h", "1d")
             aggregation: Price aggregation method ("median", "twap")

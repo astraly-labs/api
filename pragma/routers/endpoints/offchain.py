@@ -37,7 +37,7 @@ async def get_candlestick_data(
 
 
 @app.get(
-    "/data/{base}/{quote}",
+    "/data/{pair:path}",
     responses={
         200: {"description": "Successfully retrieved offchain data"},
         403: {"model": ErrorResponse, "description": "API key missing or invalid"},
@@ -46,8 +46,7 @@ async def get_candlestick_data(
     tags=["offchain"],
 )
 async def get_offchain_data(
-    base: str = Path(..., description="Base asset symbol (e.g. BTC)"),
-    quote: str = Path(..., description="Quote asset symbol (e.g. USD)"),
+    pair: str = Path(..., description="Asset pair, e.g. btc/usd"),
     timestamp: int | None = Query(None, description="Unix timestamp in seconds for historical price data"),
     interval: str | None = Query(
         None,
@@ -72,8 +71,7 @@ async def get_offchain_data(
     """Get offchain data for a trading pair.
 
     Args:
-        base: Base asset symbol (e.g. BTC)
-        quote: Quote asset symbol (e.g. USD)
+        pair: The asset pair to fetch data for (e.g. btc/usd)
         timestamp: Unix timestamp in seconds for historical price data
         interval: Time interval for aggregated price data
         routing: Enable price routing through intermediate pairs
@@ -107,6 +105,14 @@ async def get_offchain_data(
     # Validate with_components
     if with_components is not None and with_components not in [True, False]:
         raise HTTPException(status_code=400, detail="Invalid with_components")
+
+    try:
+        base, quote = pair.split("/")
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid pair format. Expected format: base/quote (e.g. btc/usd)",
+        ) from e
 
     return await client.get_offchain_data(
         base=base,

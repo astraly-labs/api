@@ -26,8 +26,11 @@ async def get_token(websocket: WebSocket, authorization: str = Header(None)):
         if token != settings.api_key:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid API key")
         return token
-    except ValueError:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid authorization header format")
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid authorization header format",
+        ) from e
 
 
 @app.websocket("/price/subscribe")
