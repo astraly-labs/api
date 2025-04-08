@@ -114,7 +114,7 @@ async def get_offchain_data(
             detail="Invalid pair format. Expected format: base/quote (e.g. btc/usd)",
         ) from e
 
-    return await client.get_offchain_data(
+    data = await client.get_offchain_data(
         base=base,
         quote=quote,
         timestamp=timestamp,
@@ -125,3 +125,61 @@ async def get_offchain_data(
         expiry=expiry,
         with_components=with_components,
     )
+
+    # Transform the data into the desired format
+    if not data or "error" in data:
+        return {
+            "image": f"/assets/currencies/{base.lower()}.svg",
+            "type": "Crypto",
+            "ticker": pair.upper(),
+            "lastUpdated": "Error fetching data",
+            "price": 0,
+            "sources": 0,
+            "components": [],
+            "variations": {
+                "past1h": 0,
+                "past24h": 0,
+                "past7d": 0,
+            },
+            "chart": "",
+            "ema": "N/A",
+            "macd": "N/A",
+            "error": data.get("error") if data else "Failed to fetch data",
+            "isUnsupported": False,
+        }
+
+    # Calculate price from hex value
+    price = float(int(data["price"], 16)) / (10 ** data["decimals"])
+
+    # Transform components
+    components = [
+        {
+            "publisher": "PRAGMA",  # Default publisher for offchain data
+            "source": component["source"],
+            "price": component["price"],
+            "tx_hash": "0x0",  # No tx hash in offchain data
+            "timestamp": component["timestamp"] // 1000,  # Convert ms to seconds
+        }
+        for component in data["components"]
+    ]
+
+    return {
+        "image": f"/assets/currencies/{base.lower()}.svg",
+        "type": "Crypto",
+        "ticker": data["pair_id"],
+        "decimals": data["decimals"],
+        "lastUpdated": data["timestamp"] // 1000,  # Convert ms to seconds
+        "price": price,
+        "sources": data["num_sources_aggregated"],
+        "components": components,
+        "variations": {
+            "past1h": 0,  # These would need to be calculated separately
+            "past24h": 0,
+            "past7d": 0,
+        },
+        "chart": "",
+        "ema": "N/A",
+        "macd": "N/A",
+        "error": None,
+        "isUnsupported": False,
+    }
