@@ -24,7 +24,7 @@ app = APIRouter(
 )
 async def get_checkpoints(
     pair: str = Query(..., description="Trading pair in format base/quote (e.g., btc/usd)"),
-    network: str = Query("mainnet", description="Network name"),
+    network: str = Query("starknet-mainnet", description="Network name"),
     client: PragmaApiClient = Depends(get_api_client),
 ):
     """Retrieve checkpoint data for a specific pair and network.
@@ -63,7 +63,7 @@ async def get_checkpoints(
 async def get_onchain_data(
     base: str,
     quote: str,
-    network: str = Query("mainnet", description="Network name"),
+    network: str = Query("starknet-mainnet", description="Network name"),
     timestamp: str | None = Query(None, description="Timestamp range in seconds (format: start,end)"),
     client: PragmaApiClient = Depends(get_api_client),
 ):
@@ -117,7 +117,7 @@ async def get_onchain_data(
     tags=["onchain"],
 )
 async def get_publishers(
-    network: str = Query("sepolia", description="Network name"),
+    network: str = Query("starknet-sepolia", description="Network name"),
     data_type: str = Query(
         "spot_entry",
         description="Data type",
@@ -156,7 +156,7 @@ async def get_publishers(
 )
 async def get_publisher(
     name: str,
-    network: str = Query("sepolia", description="Network name"),
+    network: str = Query("starknet-sepolia", description="Network name"),
     data_type: str = Query("spot_entry", description="Data type"),
     client: PragmaApiClient = Depends(get_api_client),
 ):
@@ -180,7 +180,7 @@ async def get_publisher(
 )
 async def get_aggregated_onchain_data(
     pair: str = Path(..., description="Trading pair (e.g., btc/usd)"),
-    network: str = Query("mainnet", description="Network name"),
+    network: str = Query("starknet-mainnet", description="Network name"),
     aggregation: str = Query("median", description="Aggregation method"),
     client: PragmaApiClient = Depends(get_api_client),
 ):

@@ -44,8 +44,8 @@ class Settings(BaseSettings):
             "sepolia": f"{self.api_base_url}/onchain",
             "checkpointsMainnet": f"{self.api_base_url}/onchain/checkpoints",
             "checkpointsSepolia": f"{self.api_base_url}/onchain/checkpoints",
-            "publishersMainnet": f"{self.api_base_url}/onchain/publishers?network=mainnet&data_type=spot_entry",
-            "publishersSepolia": f"{self.api_base_url}/onchain/publishers?network=sepolia&data_type=spot_entry",
+            "publishersMainnet": f"{self.api_base_url}/onchain/publishers?network=starknet-mainnet&data_type=spot_entry",
+            "publishersSepolia": f"{self.api_base_url}/onchain/publishers?network=starknet-sepolia&data_type=spot_entry",
         }
 
     class Config:

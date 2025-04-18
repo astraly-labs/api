@@ -91,7 +91,7 @@ class PragmaApiClient:
         params = {"status": status, "page": str(page), "limit": str(limit)}
         return await self._make_request("optimistic/assertions", params)
 
-    async def get_checkpoints(self, pair: str, network: str = "sepolia") -> list[dict[str, Any]]:
+    async def get_checkpoints(self, pair: str, network: str = "starknet-sepolia") -> list[dict[str, Any]]:
         """Get checkpoint data for a specific pair and network."""
         params = {"network": network}
         return await self._make_request(f"onchain/checkpoints/{pair}", params)
@@ -99,7 +99,7 @@ class PragmaApiClient:
     async def get_onchain_data(
         self,
         pair: str,
-        network: str = "mainnet",
+        network: str = "starknet-mainnet",
         start_timestamp: int | None = None,
         end_timestamp: int | None = None,
     ) -> list[dict[str, Any]]:
@@ -115,7 +115,7 @@ class PragmaApiClient:
             raise
 
     async def get_onchain_data_aggregated(
-        self, pair: str, network: str = "mainnet", aggregation: str = "median"
+        self, pair: str, network: str = "starknet-mainnet", aggregation: str = "median"
     ) -> list[dict[str, Any]]:
         """Get on-chain data for a specific pair and network."""
         # Separate the base and quote from the pair
@@ -128,13 +128,13 @@ class PragmaApiClient:
         params = {"interval": interval}
         return await self._make_request(f"aggregation/candlestick/{pair}", params)
 
-    async def get_publishers(self, network: str = "sepolia", data_type: str = "spot_entry") -> list[dict[str, Any]]:
+    async def get_publishers(self, network: str = "starknet-sepolia", data_type: str = "spot_entry") -> list[dict[str, Any]]:
         """Get publishers for a specific network and data type."""
         params = {"network": network, "data_type": data_type}
         return await self._make_request("onchain/publishers", params)
 
     async def fetch_multiple_assets(
-        self, assets: list[dict[str, str]], source_network: str = "mainnet"
+        self, assets: list[dict[str, str]], source_network: str = "starknet-mainnet"
     ) -> dict[str, Any]:
         """Fetch data for multiple assets in parallel.
 
